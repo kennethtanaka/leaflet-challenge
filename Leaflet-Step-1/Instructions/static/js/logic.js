@@ -1,8 +1,9 @@
 // Store our API endpoint inside queryUrl
-// var queryUrl = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2014-01-01&endtime=" +
-//   "2014-01-02&maxlongitude=-69.52148437&minlongitude=-123.83789062&maxlatitude=48.74894534&minlatitude=25.16517337";
+// All earthquakes - Past 7 Days
+var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
-var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson";
+//uncomment to see Significant earthquakes - Past Day
+//var queryUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson";
 
 // Perform a GET request to the query URL
 d3.json(queryUrl, function (data) {
@@ -16,7 +17,7 @@ function createFeatures(earthquakeData) {
     // Define a function we want to run once for each feature in the features array
     // Give each feature a popup describing the place and time of the earthquake
     function onEachFeature(feature, layer) {
-        layer.bindPopup("<h3>" + feature.properties.place +
+        layer.bindPopup("<h3>" + feature.properties.place + 
             "</h3><hr><p>" + new Date(feature.properties.time) + "</p>");
     }
 
@@ -44,7 +45,6 @@ function createFeatures(earthquakeData) {
 createMap(earthquakes);
 }
 
-
 // Conditionals for earthquakes based on its magnitude
 
 function circleColor(magnitude) {
@@ -52,10 +52,10 @@ function circleColor(magnitude) {
         return "#68FF33"
     }
     else if (magnitude < 2) {
-        return "#FFF633"
+        return "#CEFF33"
     }
     else if (magnitude < 3) {
-        return "#FFD133"
+        return "#FFF633"
     }
     else if (magnitude < 4) {
         return "#FFBB33"
@@ -70,7 +70,7 @@ function circleColor(magnitude) {
 
 // Define a radius based on magnitude
 function markerSize(magnitude) {
-    return magnitude * 40000; // 40000 is arbitrary
+    return magnitude * 10000; // 40000 is arbitrary
 }
 
 function createMap(earthquakes) {
@@ -98,7 +98,7 @@ function createMap(earthquakes) {
         center: [
             37.09, -95.71
         ],
-        zoom: 2,
+        zoom: 4.4,
         layers: [lightmap, earthquakes]
     });
 
@@ -107,30 +107,29 @@ function createMap(earthquakes) {
     L.control.layers(baseMaps, overlayMaps, {
         collapsed: false
     }).addTo(myMap);
-}
+
 
 // create custom legend control - leafletjs.com
 
 // add legend to map
 var legend = L.control({position: 'bottomright'});
 
-legend.onAdd = function (map) {
+legend.onAdd = function () {
 
     var div = L.DomUtil.create('div', 'info legend'),
-        mag = [0, 1, 2, 3, 4, 5],
-        labels = [];
-
+        mag = [0, 1, 2, 3, 4, 5];
+        
     // loop through our density intervals and generate a label with a colored square for each interval
     for (var i = 0; i < mag.length; i++) {
         div.innerHTML +=
-            '<i style="background:' + circleColor(mag[i] + 1) + '"></i> ' +
+            '<i style="background:' + circleColor(mag[i]) + '"> &nbsp;&nbsp </i> ' +
             mag[i] + (mag[i + 1] ? '&ndash;' + mag[i + 1] + '<br>' : '+');
     }
     return div;
 };
 
-legend.addTo(map);
-
+legend.addTo(myMap);
+}
 
 
 
